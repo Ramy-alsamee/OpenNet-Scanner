@@ -60,7 +60,13 @@ sudo python3 opennet_scanner.py wlan0
 
 ---
 
+## حقوق الملكية
+
+حقوق الطبع والنشر © 2026 **رامي السامعي (Ramy Al-Samee)**. يُرجى الرجوع إلى ملف `LICENSE` لمعرفة شروط استخدام MIT.
+
 ## English Summary
+
+Copyright © 2026 **رامي السامعي (Ramy Al-Samee)**.
 
 **OpenNet Scanner** is an advanced open-source security research tool designed to analyze public and open Wi-Fi networks. It automatically installs required dependencies, scans for common vulnerabilities (such as lack of encryption, captive portals, MITM vulnerability, Evil Twin risks, and device isolation failures), generates detailed reports, and provides an interactive decision workflow for authorized security assessments.
 
