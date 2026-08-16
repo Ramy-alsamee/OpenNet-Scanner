@@ -1,6 +1,6 @@
 # OpenNet-Scanner: Cyber GUI & Defensive Auditing Framework 🛡️
 
-**OpenNet-Scanner** هو إطار عمل مهني ومفتوح المصدر لتدقيق أمان الشبكات، الاستطلاع الآمن، فحص المنافذ، فحص الثغرات (Vulnerability Scanner)، مراقبة حزم الشبكة (Packet Sniffer)، تدقيق أمان شبكات الواي فاي (Wi-Fi Security Audit)، وتحليل روابط الهندسة الاجتماعية والتصيد الاحتيالي (Social Engineering Audit)، مع دعم **واجهة رسومية هكرية احترافية (Cyber Hacker GUI)**.
+**OpenNet-Scanner** هو إطار عمل مهني ومفتوح المصدر لتدقيق أمان الشبكات، الاستطلاع الآمن، فحص المنافذ، فحص الثغرات (Vulnerability Scanner)، مراقبة حزم الشبكة (Packet Sniffer)، تدقيق أمان شبكات الواي فاي (Wi-Fi Security Audit)، وتحليل روابط الهندسة الاجتماعية والتصيد الاحتيالي (Social Engineering Audit)، مع دعم **واجهة رسومية هكرية احترافية (Cyber Hacker GUI)** وإصدار تنفيذي مستقل لنظام ويندوز (`.exe`).
 
 ---
 
@@ -19,27 +19,22 @@
 
 ---
 
+## كيفية الحصول على الملف التنفيذي (.exe) لويندوز 🪟
+
+يوفر المشروع نظام بناء آلي عبر **GitHub Actions** لبناء ملف الـ `.exe` تلقائياً دون الحاجة لتثبيت بايثون:
+1. اذهب إلى علامة التبويب **Actions** في أعلى مستودعك على GitHub.
+2. اختر آخر عملية بناء ناجحة لـ **"Build Windows Executable (.exe)"**.
+3. قم بتنزيل ملف الـ Artifact المسمى **OpenNet-Scanner-Windows-Exe** والذي يحتوي على ملف `opennet_scanner.exe` جاهزاً للتشغيل المباشر.
+
+---
+
 ## المتطلبات والتشغيل 🛠️
 
-يتطلب تشغيل الفحوصات والأدوات تثبيت الحزم الأساسية التالية في نظامك (Debian/Ubuntu/Kali):
-
+### التشغيل كملف بايثون (Linux / Kali / Termux):
 ```bash
-sudo apt update && sudo apt install -y python3-tk nmap tcpdump network-manager wireless-tools
+python3 opennet_scanner.py --gui   # للواجهة الرسومية
+python3 opennet_scanner.py --cli   # لوضع الطرفية
 ```
-
-### 1. تشغيل الوضع التفاعلي (CLI Mode)
-
-```bash
-python3 opennet_scanner.py --cli
-```
-
-### 2. تشغيل الواجهة الرسومية (Cyber GUI Mode)
-
-```bash
-python3 opennet_scanner.py --gui
-```
-
-أو شغّل `python3 opennet_scanner.py` داخل جلسة سطح مكتب. من الواجهة يمكنك إدخال رابط أو نطاق مشبوه والضغط على **PHISH CHECK** لتحليله أمنياً، أو تشغيل باقي الفحوصات وتصدير تقرير JSON.
 
 ---
 
@@ -51,6 +46,6 @@ python3 opennet_scanner.py --gui
 
 ## English Summary
 
-**OpenNet-Scanner** is a professional defensive network auditing and vulnerability assessment framework featuring a dedicated **Cyber Hacker GUI**, port scanner, vulnerability assessment, packet sniffer, Wi-Fi security audit, and **Social Engineering / Phishing Link Analysis** module.
+**OpenNet-Scanner** is a professional defensive network auditing and vulnerability assessment framework featuring a dedicated **Cyber Hacker GUI**, port scanner, vulnerability assessment, packet sniffer, Wi-Fi security audit, social engineering analysis, and automatic **Windows Executable (.exe)** build support via GitHub Actions.
 
 *Developed for authorized security assessments and educational purposes only.*
