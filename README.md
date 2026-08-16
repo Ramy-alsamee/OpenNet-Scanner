@@ -1,82 +1,60 @@
-# OpenNet Scanner — Public Wi-Fi Security Research Tool 🛡️
+# OpenNet-Scanner: The Ultimate Network Security & Attack Arsenal Framework 🛡️
 
-**OpenNet Scanner** هو أداة متقدمة ومتكاملة لأبحاث أمان الشبكات اللاسلكية العامة والمفتوحة (Public Wi-Fi). تقوم الأداة بتثبيت المتطلبات تلقائياً، فحص جميع الثغرات المعروفة في الشبكات المفتوحة، تقديم تقارير تفصيلية، ومن ثم سؤال المستخدم حول ما إذا كان يريد مواصلة العمل وتطبيق الفحص المتقدم.
+**OpenNet-Scanner (Arsenal Edition)** هو إطار عمل أمني متقدم ومفتوح المصدر، مخصص لأبحاث أمان الشبكات السلكية واللاسلكية، محاكاة هجمات الاختراق، الفحص الشامل للثغرات، واختبار قوة الحماية في البيئات المختلفة.
 
 ---
 
-## الميزات الرئيسية 🌟
+## وحدات الترسانة الأساسية (Arsenal Modules) 🌟
 
-| الميزة | الوصف |
+| وحدة التشغيل | الوصف والمهام |
 |---|---|
-| **تثبيت تلقائي للمتطلبات** | تقوم الأداة تلقائياً بفحص وتثبيت جميع الأدوات اللازمة (`nmap`, `arp-scan`, `tcpdump`, `dsniff`, إلخ). |
-| **مسح الشبكات المفتوحة** | اكتشاف شبكات Wi-Fi المحيطة غير المشفرة وتحليل حالتها. |
-| **فحص بوابات الويب المقيدة** | الكشف عن بوابات Captive Portals وطرق تجاوزها المختلفة. |
-| **كشف تسريب البيانات** | توضيح خطورة إرسال البيانات بدون تشفير على الشبكات العامة. |
-| **فحص ARP Spoofing / MITM** | تقييم إمكانية تنفيذ هجمات الرجل في المنتصف واعتراض الحركة. |
-| **مخاطر شبكات Evil Twin** | فحص مخاطر الشبكات الوهمية والمقلدة التي تخدع الأجهزة. |
-| **فحص عزل الأجهزة** | اكتشاف مدى إمكانية الوصول إلى الأجهزة الأخرى المتصلة بنفس الشبكة. |
-| **فحص DNS Hijacking** | الكشف عن مخاطر التلاعب بخوادم DNS وتوجيه الحركة لمواقع مزيفة. |
-| **فحص DHCP Starvation** | تقييم خطر تعطيل الشبكة عبر استهلاك عناوين IP المتاحة. |
-| **واجهة تفاعلية ذكية** | عرض ملخص شامل للثغرات وسؤال المستخدم قبل المتابعة في الاستغلال. |
+| **1. وحدة الاستطلاع المتقدمة** | اكتشاف الأجهزة الحية على النطاق المحلي باستخدام `ARP Scan` و `Nmap` السريع. |
+| **2. وحدة الهجمات اللاسلكية** | فحص الشبكات المحيطة، محاكاة التقاط حزم التوثيق (Handshake)، واختبار هجمات قطع الاتصال (Deauth). |
+| **3. وحدة الاعتراض والهجمات في المنتصف (MITM)** | فحص جداول ARP، اختبار توجيه النطاقات (DNS Spoofing)، وفحص قنوات الاتصال غير المشفرة. |
+| **4. وحدة فحص الثغرات والخدمات (CVE)** | تشغيل محرك Nmap Vuln Scripts لفحص الثغرات المعروفة في الخدمات النشطة. |
+| **5. فحص الترسانة الشامل** | تنفيذ دورة فحص واستطلاع كاملة بضغطة زر واحدة. |
+| **6. تصدير التقارير الذكية** | تصدير النتائج بصيغتي **JSON** و **HTML** بتصميم احترافي ومنظم. |
 
 ---
 
 ## المتطلبات ونظام التشغيل 💻
 
-- **النظام:** Linux (Kali Linux, Debian, Ubuntu, أو أي توزيعة تدعم أدوات الشبكات).
-- **الصلاحيات:** يتطلب تشغيل الأداة بصلاحيات الجذر (`sudo`).
-- **Python:** الإصدار 3.x مع مكتبة `requests` (إن وجدت).
+- **النظام المدعوم:** Linux (Kali Linux, Debian, Ubuntu, Termux مع الصلاحيات المناسبة).
+- **الصلاحيات:** يتطلب تشغيل بعض الوحدات المتقدمة صلاحيات الجذر (`sudo`).
+- **Python:** الإصدار 3.x مع الأدوات الأساسية.
 
 ---
 
 ## التثبيت والاستخدام 🛠️
 
-### 1. استنساخ المستودع وتثبيت الأداة
-
+### 1. استنساخ المستودع
 ```bash
 git clone https://github.com/Ramy-alsamee/OpenNet-Scanner.git
 cd OpenNet-Scanner
 ```
 
-### 2. التشغيل
-
-قم بتشغيل الأداة بصلاحيات الجذر:
-
+### 2. تشغيل الترسانة
 ```bash
 sudo python3 opennet_scanner.py
 ```
-
-أو لتحديد واجهة شبكة معينة (مثل `wlan0`):
-
-```bash
-sudo python3 opennet_scanner.py wlan0
-```
-
----
-
-## إخلاء مسؤولية قانونية ⚖️
-
-هذه الأداة مخصصة حصرياً لأغراض البحث الأمني المشروع، اختبار أمان شبكاتك الخاصة، والوعي السيبراني. لا يتحمل المطور أي مسؤولية قانونية عن أي استخدام غير قانوني أو ضار لهذه الأداة. استخدمها فقط في الأجهزة والشبكات التي تملكها أو لديك إذن صريح لاختبارها.
 
 ---
 
 ## حقوق الملكية
 
-حقوق الطبع والنشر © 2026 **رامي السامعي (Ramy Al-Samee)**. يُرجى الرجوع إلى ملف `LICENSE` لمعرفة شروط استخدام MIT.
+حقوق الطبع والنشر © 2026 **رامي السامعي (Ramy Al-Samee)**. مرخّص بموجب رخصة MIT.
+
+---
 
 ## English Summary
 
-Copyright © 2026 **رامي السامعي (Ramy Al-Samee)**.
+**OpenNet-Scanner (Arsenal Edition)** is a modular network security and attack simulation framework. It integrates advanced reconnaissance, wireless attack simulations, MITM inspection, CVE vulnerability scanning, and automated JSON/HTML report generation into a single interactive tool.
 
-**OpenNet Scanner** is an advanced open-source security research tool designed to analyze public and open Wi-Fi networks. It automatically installs required dependencies, scans for common vulnerabilities (such as lack of encryption, captive portals, MITM vulnerability, Evil Twin risks, and device isolation failures), generates detailed reports, and provides an interactive decision workflow for authorized security assessments.
-
-### Installation & Usage
-
+### Usage
 ```bash
 git clone https://github.com/Ramy-alsamee/OpenNet-Scanner.git
 cd OpenNet-Scanner
 sudo python3 opennet_scanner.py
 ```
 
----
 *Developed for educational and authorized security research purposes only.*
