@@ -48,7 +48,7 @@ WHITE = "#e2e8f0"
 BANNER = r"""
 ╔══════════════════════════════════════════════════════════════════════╗
 ║        OPENNET-SCANNER — CYBER GUI / DEFENSIVE AUDITING            ║
-║        Authorized Recon · Port Audit · Vulnerability Assessment     ║
+║        Authorized Recon · Port Audit · Wi-Fi Security Audit         ║
 ╚══════════════════════════════════════════════════════════════════════╝
 """
 
@@ -58,7 +58,6 @@ def timestamp() -> str:
 
 
 def validate_target(value: str) -> str:
-    """Accept an IP, CIDR network, or hostname without shell interpolation."""
     value = value.strip()
     if not value:
         return "127.0.0.1"
@@ -88,6 +87,7 @@ class OpenNetAuditor:
             "vulnerability_scan": {},
             "defensive_checks": {},
             "packet_sniffer": {},
+            "wifi_audit": {},
         }
 
     def log(self, text: str) -> None:
@@ -156,7 +156,6 @@ class OpenNetAuditor:
         return output
 
     def packet_sniffer(self, count: int = 15) -> str:
-        """Capture network packet summaries defensively using tcpdump if available."""
         if shutil.which("tcpdump") is None:
             msg = "[!] أداة tcpdump غير متوفرة. ثبّتها عبر: sudo apt install tcpdump"
             self.log(msg)
@@ -174,9 +173,48 @@ class OpenNetAuditor:
         except subprocess.TimeoutExpired:
             output = "[!] انتهت مهلة مراقبة الحزم."
         except OSError as exc:
-            output = f"[!] تعذر تشغيل tcpdump (قد يتطلب صلاحيات root): {exc}"
+            output = f"[!] تعذر تشغيل tcpdump: {exc}"
         self.log(output or "[i] لم يتم رصد حزم أو أن الواجهة تتطلب صلاحيات مشرف.")
         self.results["packet_sniffer"] = {"count": count, "output": output}
+        return output
+
+    def wifi_security_audit(self) -> str:
+        """Scan available Wi-Fi networks and audit their encryption security."""
+        self.log("[*] بدء فحص وتدقيق أمان شبكات الواي فاي المحيطة...")
+        output = ""
+        # Try nmcli first if available
+        if shutil.which("nmcli"):
+            try:
+                completed = subprocess.run(
+                    ["nmcli", "dev", "wifi", "list"],
+                    capture_output=True,
+                    text=True,
+                    timeout=15,
+                    check=False,
+                )
+                output = (completed.stdout + completed.stderr).strip()
+            except Exception as exc:
+                output = f"[!] خطأ أثناء فحص nmcli: {exc}"
+        
+        # Fallback to iw or iwlist if nmcli yielded nothing
+        if not output or "Error" in output or len(output) < 10:
+            if shutil.which("iwlist"):
+                try:
+                    completed = subprocess.run(
+                        ["iwlist", "scan"],
+                        capture_output=True,
+                        text=True,
+                        timeout=15,
+                        check=False,
+                    )
+                    output = (completed.stdout + completed.stderr).strip()
+                except Exception as exc:
+                    output = f"[!] خطأ أثناء فحص iwlist: {exc}"
+            else:
+                output = "[!] لم يتم العثور على أدوات لاسلكية مدعومة (nmcli / iwlist) في هذه البيئة (مثل الحاويات المعزولة)."
+
+        self.log(output)
+        self.results["wifi_audit"] = {"output": output}
         return output
 
     def export_report(self, path: Optional[str] = None) -> str:
@@ -194,7 +232,7 @@ class CyberGUI:
     def __init__(self, root: tk.Tk):
         self.root = root
         self.root.title("OpenNet-Scanner | Cyber GUI — Ramy Al-Samee")
-        self.root.geometry("1100x720")
+        self.root.geometry("1150x720")
         self.root.minsize(850, 560)
         self.root.configure(bg=BG)
         self.events: queue.Queue[tuple[str, object]] = queue.Queue()
@@ -215,15 +253,15 @@ class CyberGUI:
         header = tk.Frame(self.root, bg=PANEL, padx=18, pady=14)
         header.pack(fill=tk.X)
         tk.Label(header, text="OPENNET-SCANNER // CYBER SECURITY SUITE", bg=PANEL, fg=CYAN, font=("Consolas", 18, "bold")).pack(anchor="w")
-        tk.Label(header, text="Defensive auditing • Packet Sniffer • Authorized targets only", bg=PANEL, fg=AMBER, font=("Consolas", 10)).pack(anchor="w", pady=(5, 0))
+        tk.Label(header, text="Defensive auditing • Packet Sniffer • Wi-Fi Security Audit", bg=PANEL, fg=AMBER, font=("Consolas", 10)).pack(anchor="w", pady=(5, 0))
         tk.Label(header, text="Developer: رامي السامعي (Ramy Al-Samee)", bg=PANEL, fg=GREEN, font=("Consolas", 10)).pack(anchor="w", pady=(3, 0))
 
         controls = tk.Frame(self.root, bg=BG, padx=14, pady=12)
         controls.pack(fill=tk.X)
         tk.Label(controls, text="Target / هدف:", bg=BG, fg=WHITE, font=("Consolas", 10, "bold")).grid(row=0, column=0, sticky="w")
         self.target_var = tk.StringVar(value="127.0.0.1")
-        target_entry = ttk.Entry(controls, textvariable=self.target_var, style="Cyber.TEntry", width=24)
-        target_entry.grid(row=0, column=1, padx=(8, 15), sticky="ew")
+        target_entry = ttk.Entry(controls, textvariable=self.target_var, style="Cyber.TEntry", width=22)
+        target_entry.grid(row=0, column=1, padx=(8, 12), sticky="ew")
         controls.columnconfigure(1, weight=1)
 
         self._button(controls, "RECON", self.start_recon, 2)
@@ -231,21 +269,22 @@ class CyberGUI:
         self._button(controls, "VULN", self.start_vuln, 4)
         self._button(controls, "DEFEND", self.start_defensive, 5)
         self._button(controls, "SNIFFER", self.start_sniffer, 6)
-        self._button(controls, "FULL", self.start_full, 7)
-        self._button(controls, "EXPORT", self.export_report, 8)
+        self._button(controls, "WIFI AUDIT", self.start_wifi, 7)
+        self._button(controls, "FULL", self.start_full, 8)
+        self._button(controls, "EXPORT", self.export_report, 9)
 
         terminal_frame = tk.Frame(self.root, bg=BG, padx=14, pady=4)
         terminal_frame.pack(fill=tk.BOTH, expand=True)
         tk.Label(terminal_frame, text="LIVE AUDIT TERMINAL", bg=BG, fg=GREEN, font=("Consolas", 10, "bold")).pack(anchor="w")
         self.output = scrolledtext.ScrolledText(terminal_frame, bg=TERMINAL, fg=GREEN, insertbackground=CYAN, selectbackground="#164e63", font=("Consolas", 10), relief="flat", padx=10, pady=10)
         self.output.pack(fill=tk.BOTH, expand=True, pady=(5, 0))
-        self.output.insert(tk.END, BANNER + "\n[+] GUI جاهزة. اختر عملية التدقيق أو مراقبة الحزم (Sniffer)...\n")
+        self.output.insert(tk.END, BANNER + "\n[+] GUI جاهزة. اختر وحدة التدقيق أو فحص أمان الواي فاي (Wi-Fi Audit)...\n")
 
         footer = tk.Frame(self.root, bg=PANEL, padx=14, pady=7)
         footer.pack(fill=tk.X)
         self.status = tk.Label(footer, text="STATUS: READY", bg=PANEL, fg=MUTED, font=("Consolas", 9, "bold"))
         self.status.pack(side=tk.LEFT)
-        tk.Label(footer, text="v4.2 Cyber GUI + Sniffer", bg=PANEL, fg=MUTED, font=("Consolas", 9)).pack(side=tk.RIGHT)
+        tk.Label(footer, text="v4.3 Cyber GUI + Wi-Fi", bg=PANEL, fg=MUTED, font=("Consolas", 9)).pack(side=tk.RIGHT)
 
     def _button(self, parent: tk.Frame, text: str, command, column: int) -> None:
         ttk.Button(parent, text=text, style="Cyber.TButton", command=command).grid(row=0, column=column, padx=2, sticky="ew")
@@ -311,6 +350,9 @@ class CyberGUI:
     def start_sniffer(self) -> None:
         self._run_async("PACKET SNIFFER", lambda: self.auditor.packet_sniffer(20))
 
+    def start_wifi(self) -> None:
+        self._run_async("WIFI SECURITY AUDIT", self.auditor.wifi_security_audit)
+
     def start_full(self) -> None:
         target = self._target()
         if target and messagebox.askyesno("تأكيد التدقيق الشامل", "هل تملك إذناً صريحاً لتنفيذ التدقيق الشامل؟"):
@@ -319,6 +361,7 @@ class CyberGUI:
                 self.auditor.port_audit(target)
                 self.auditor.vulnerability_scan(target)
                 self.auditor.packet_sniffer(10)
+                self.auditor.wifi_security_audit()
                 return self.auditor.defensive_posture()
             self._run_async("FULL AUDIT", full)
 
@@ -329,8 +372,8 @@ class CyberGUI:
 
 def run_cli() -> None:
     print(BANNER)
-    print("OpenNet-Scanner CLI — التدقيق الدفاعي ومراقبة الشبكة")
-    print("1) Local Recon  2) Port Audit  3) Vuln Scan  4) Defensive Check  5) Packet Sniffer  6) Export  0) Exit")
+    print("OpenNet-Scanner CLI — التدقيق الدفاعي وتدقيق الواي فاي")
+    print("1) Local Recon  2) Port Audit  3) Vuln Scan  4) Defensive Check  5) Packet Sniffer  6) Wi-Fi Audit  7) Export  0) Exit")
     auditor = OpenNetAuditor()
     while True:
         choice = input("\nاختر: ").strip()
@@ -349,6 +392,8 @@ def run_cli() -> None:
             elif choice == "5":
                 auditor.packet_sniffer(20)
             elif choice == "6":
+                auditor.wifi_security_audit()
+            elif choice == "7":
                 auditor.export_report()
             elif choice == "0":
                 return

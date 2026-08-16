@@ -1,6 +1,6 @@
 # OpenNet-Scanner: Cyber GUI & Defensive Auditing Framework 🛡️
 
-**OpenNet-Scanner** هو إطار عمل مهني ومفتوح المصدر لتدقيق أمان الشبكات، الاستطلاع الآمن، فحص المنافذ، فحص الثغرات (Vulnerability Scanner)، ومراقبة حزم الشبكة (Packet Sniffer)، مع دعم **واجهة رسومية هكرية احترافية (Cyber Hacker GUI)**.
+**OpenNet-Scanner** هو إطار عمل مهني ومفتوح المصدر لتدقيق أمان الشبكات، الاستطلاع الآمن، فحص المنافذ، فحص الثغرات (Vulnerability Scanner)، مراقبة حزم الشبكة (Packet Sniffer)، وتدقيق أمان شبكات الواي فاي (Wi-Fi Security Audit)، مع دعم **واجهة رسومية هكرية احترافية (Cyber Hacker GUI)**.
 
 ---
 
@@ -13,6 +13,7 @@
 | **فحص المنافذ والخدمات** | رصد المنافذ المفتوحة وتحديد إصدارات الخدمات (Port & Service Audit). |
 | **فحص الثغرات الشائعة** | تشغيل محرك سكربتات فحص الثغرات (Nmap Vuln Scripts) لاكتشاف الثغرات المعروفة (CVE). |
 | **مراقبة الحزم (Packet Sniffer)** | التقاط وتحليل رؤوس حزم الشبكة الحية (Packet Headers) لاكتشاف النشاط المشبوه عبر `tcpdump`. |
+| **تدقيق أمان الواي فاي (Wi-Fi Audit)** | مسح الشبكات اللاسلكية المحيطة وتقييم أنواع التشفير وحالة الحماية عبر `nmcli` / `iwlist`. |
 | **التقييم الدفاعي** | مراجعة إعدادات الشبكة وخوادم DNS والسياسات الأمنية. |
 
 ---
@@ -22,7 +23,7 @@
 يتطلب تشغيل الفحوصات والأدوات تثبيت الحزم الأساسية التالية في نظامك (Debian/Ubuntu/Kali):
 
 ```bash
-sudo apt update && sudo apt install -y python3-tk nmap tcpdump
+sudo apt update && sudo apt install -y python3-tk nmap tcpdump network-manager wireless-tools
 ```
 
 ### 1. تشغيل الوضع التفاعلي (CLI Mode)
@@ -39,7 +40,7 @@ python3 opennet_scanner.py --cli
 python3 opennet_scanner.py --gui
 ```
 
-أو شغّل `python3 opennet_scanner.py` داخل جلسة سطح مكتب. من الواجهة يمكنك إدخال الهدف، الضغط على **SNIFFER** لمراقبة حركة الشبكة، أو تشغيل الفحوصات وتصدير تقرير JSON.
+أو شغّل `python3 opennet_scanner.py` داخل جلسة سطح مكتب. من الواجهة يمكنك الضغط على **WIFI AUDIT** لفحص شبكات الواي فاي المحيطة وتدقيق تشفيرها، أو تشغيل باقي الفحوصات وتصدير تقرير JSON.
 
 ---
 
@@ -51,6 +52,6 @@ python3 opennet_scanner.py --gui
 
 ## English Summary
 
-**OpenNet-Scanner** is a professional defensive network auditing and vulnerability assessment framework featuring a dedicated **Cyber Hacker GUI**, port scanner, vulnerability assessment, and **Packet Sniffer** module.
+**OpenNet-Scanner** is a professional defensive network auditing and vulnerability assessment framework featuring a dedicated **Cyber Hacker GUI**, port scanner, vulnerability assessment, packet sniffer, and **Wi-Fi Security Audit** module.
 
 *Developed for authorized security assessments and educational purposes only.*
