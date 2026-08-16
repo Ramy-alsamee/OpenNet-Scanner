@@ -16,12 +16,14 @@ import ipaddress
 import json
 import os
 import queue
+import re
 import shutil
 import subprocess
 import sys
 import threading
 import time
 from datetime import datetime
+from urllib.parse import urlparse
 
 try:
     import tkinter as tk
@@ -48,7 +50,7 @@ WHITE = "#e2e8f0"
 BANNER = r"""
 ╔══════════════════════════════════════════════════════════════════════╗
 ║        OPENNET-SCANNER — CYBER GUI / DEFENSIVE AUDITING            ║
-║        Authorized Recon · Port Audit · Wi-Fi Security Audit         ║
+║        Authorized Recon · Port Audit · Social Engineering Audit     ║
 ╚══════════════════════════════════════════════════════════════════════╝
 """
 
@@ -88,6 +90,7 @@ class OpenNetAuditor:
             "defensive_checks": {},
             "packet_sniffer": {},
             "wifi_audit": {},
+            "social_engineering_audit": {},
         }
 
     def log(self, text: str) -> None:
@@ -179,10 +182,8 @@ class OpenNetAuditor:
         return output
 
     def wifi_security_audit(self) -> str:
-        """Scan available Wi-Fi networks and audit their encryption security."""
         self.log("[*] بدء فحص وتدقيق أمان شبكات الواي فاي المحيطة...")
         output = ""
-        # Try nmcli first if available
         if shutil.which("nmcli"):
             try:
                 completed = subprocess.run(
@@ -196,7 +197,6 @@ class OpenNetAuditor:
             except Exception as exc:
                 output = f"[!] خطأ أثناء فحص nmcli: {exc}"
         
-        # Fallback to iw or iwlist if nmcli yielded nothing
         if not output or "Error" in output or len(output) < 10:
             if shutil.which("iwlist"):
                 try:
@@ -211,10 +211,52 @@ class OpenNetAuditor:
                 except Exception as exc:
                     output = f"[!] خطأ أثناء فحص iwlist: {exc}"
             else:
-                output = "[!] لم يتم العثور على أدوات لاسلكية مدعومة (nmcli / iwlist) في هذه البيئة (مثل الحاويات المعزولة)."
-
+                output = "[!] لم يتم العثور على أدوات لاسلكية مدعومة في هذه البيئة."
         self.log(output)
         self.results["wifi_audit"] = {"output": output}
+        return output
+
+    def social_engineering_audit(self, target_input: str) -> str:
+        """Analyze a URL or domain for social engineering / phishing indicators."""
+        self.log(f"[*] بدء تدقيق الهندسة الاجتماعية وتحليل الرابط/النطاق: {target_input}")
+        
+        # Clean input
+        url = target_input.strip()
+        if not url.startswith("http://") and not url.startswith("https://"):
+            url = "https://" + url
+
+        parsed = urlparse(url)
+        domain = parsed.netloc or parsed.path
+        
+        analysis = []
+        analysis.append(f"[-] النطاق المستهدف للتحليل: {domain}")
+        analysis.append(f"[-] البروتوكول المستخدم: {parsed.scheme.upper()}")
+        
+        # Check HTTPS
+        if parsed.scheme != "https":
+            analysis.append("[!] تحذير أمني: الرابط لا يستخدم بروتوكول HTTPS الآمن (علامة خطر احتيال محتملة).")
+        else:
+            analysis.append("[+] البروتوكول آمن (HTTPS).")
+
+        # Check suspicious keywords in domain or URL
+        suspicious_keywords = ["login", "verify", "update", "secure", "account", "banking", "support", "signin", "free", "gift"]
+        found_keywords = [kw for kw in suspicious_keywords if kw in url.lower()]
+        if found_keywords:
+            analysis.append(f"[!] تحذير: وجد كلمات مفتاحية حساسة شائعة الاستخدام في صفحات التصيد الاحتيالي: {found_keywords}")
+        else:
+            analysis.append("[+] لم يتم رصد كلمات مفتاحية مشبوهة شائعة في الرابط.")
+
+        # Check domain length and dots
+        if len(domain) > 30:
+            analysis.append("[!] تحذير: اسم النطاق طويل جداً وغالباً ما يُستخدم لإخفاء النطاق الحقيقي.")
+        
+        dot_count = domain.count(".")
+        if dot_count > 3:
+            analysis.append(f"[!] تحذير: النطاق يحتوي على عدد كبير من النقاط ({dot_count})، مما قد يشير إلى نطاق فرعي مضلل.")
+
+        output = "\n".join(analysis)
+        self.log(output)
+        self.results["social_engineering_audit"] = {"target": target_input, "analysis": output}
         return output
 
     def export_report(self, path: Optional[str] = None) -> str:
@@ -232,7 +274,7 @@ class CyberGUI:
     def __init__(self, root: tk.Tk):
         self.root = root
         self.root.title("OpenNet-Scanner | Cyber GUI — Ramy Al-Samee")
-        self.root.geometry("1150x720")
+        self.root.geometry("1200x720")
         self.root.minsize(850, 560)
         self.root.configure(bg=BG)
         self.events: queue.Queue[tuple[str, object]] = queue.Queue()
@@ -244,24 +286,24 @@ class CyberGUI:
     def _build_styles(self) -> None:
         style = ttk.Style(self.root)
         style.theme_use("clam")
-        style.configure("Cyber.TButton", background="#122238", foreground=CYAN, padding=6, borderwidth=1, font=("Consolas", 9, "bold"))
+        style.configure("Cyber.TButton", background="#122238", foreground=CYAN, padding=5, borderwidth=1, font=("Consolas", 8, "bold"))
         style.map("Cyber.TButton", background=[("active", "#1e3a5f")], foreground=[("disabled", MUTED)])
         style.configure("Cyber.TLabel", background=BG, foreground=WHITE, font=("Consolas", 10))
         style.configure("Cyber.TEntry", fieldbackground=TERMINAL, foreground=WHITE, insertcolor=CYAN)
 
     def _build_layout(self) -> None:
-        header = tk.Frame(self.root, bg=PANEL, padx=18, pady=14)
+        header = tk.Frame(self.root, bg=PANEL, padx=18, pady=12)
         header.pack(fill=tk.X)
         tk.Label(header, text="OPENNET-SCANNER // CYBER SECURITY SUITE", bg=PANEL, fg=CYAN, font=("Consolas", 18, "bold")).pack(anchor="w")
-        tk.Label(header, text="Defensive auditing • Packet Sniffer • Wi-Fi Security Audit", bg=PANEL, fg=AMBER, font=("Consolas", 10)).pack(anchor="w", pady=(5, 0))
-        tk.Label(header, text="Developer: رامي السامعي (Ramy Al-Samee)", bg=PANEL, fg=GREEN, font=("Consolas", 10)).pack(anchor="w", pady=(3, 0))
+        tk.Label(header, text="Defensive auditing • Wi-Fi Audit • Social Engineering Analysis", bg=PANEL, fg=AMBER, font=("Consolas", 10)).pack(anchor="w", pady=(3, 0))
+        tk.Label(header, text="Developer: رامي السامعي (Ramy Al-Samee)", bg=PANEL, fg=GREEN, font=("Consolas", 10)).pack(anchor="w", pady=(2, 0))
 
-        controls = tk.Frame(self.root, bg=BG, padx=14, pady=12)
+        controls = tk.Frame(self.root, bg=BG, padx=14, pady=10)
         controls.pack(fill=tk.X)
-        tk.Label(controls, text="Target / هدف:", bg=BG, fg=WHITE, font=("Consolas", 10, "bold")).grid(row=0, column=0, sticky="w")
+        tk.Label(controls, text="Target / هدف أو رابط:", bg=BG, fg=WHITE, font=("Consolas", 9, "bold")).grid(row=0, column=0, sticky="w")
         self.target_var = tk.StringVar(value="127.0.0.1")
-        target_entry = ttk.Entry(controls, textvariable=self.target_var, style="Cyber.TEntry", width=22)
-        target_entry.grid(row=0, column=1, padx=(8, 12), sticky="ew")
+        target_entry = ttk.Entry(controls, textvariable=self.target_var, style="Cyber.TEntry", width=20)
+        target_entry.grid(row=0, column=1, padx=(6, 10), sticky="ew")
         controls.columnconfigure(1, weight=1)
 
         self._button(controls, "RECON", self.start_recon, 2)
@@ -269,22 +311,23 @@ class CyberGUI:
         self._button(controls, "VULN", self.start_vuln, 4)
         self._button(controls, "DEFEND", self.start_defensive, 5)
         self._button(controls, "SNIFFER", self.start_sniffer, 6)
-        self._button(controls, "WIFI AUDIT", self.start_wifi, 7)
-        self._button(controls, "FULL", self.start_full, 8)
-        self._button(controls, "EXPORT", self.export_report, 9)
+        self._button(controls, "WIFI", self.start_wifi, 7)
+        self._button(controls, "PHISH CHECK", self.start_social_engineering, 8)
+        self._button(controls, "FULL", self.start_full, 9)
+        self._button(controls, "EXPORT", self.export_report, 10)
 
         terminal_frame = tk.Frame(self.root, bg=BG, padx=14, pady=4)
         terminal_frame.pack(fill=tk.BOTH, expand=True)
         tk.Label(terminal_frame, text="LIVE AUDIT TERMINAL", bg=BG, fg=GREEN, font=("Consolas", 10, "bold")).pack(anchor="w")
         self.output = scrolledtext.ScrolledText(terminal_frame, bg=TERMINAL, fg=GREEN, insertbackground=CYAN, selectbackground="#164e63", font=("Consolas", 10), relief="flat", padx=10, pady=10)
         self.output.pack(fill=tk.BOTH, expand=True, pady=(5, 0))
-        self.output.insert(tk.END, BANNER + "\n[+] GUI جاهزة. اختر وحدة التدقيق أو فحص أمان الواي فاي (Wi-Fi Audit)...\n")
+        self.output.insert(tk.END, BANNER + "\n[+] GUI جاهزة. أدخل هدفاً أو رابطاً مشبوهاً واختر وحدة التدقيق...\n")
 
-        footer = tk.Frame(self.root, bg=PANEL, padx=14, pady=7)
+        footer = tk.Frame(self.root, bg=PANEL, padx=14, pady=6)
         footer.pack(fill=tk.X)
         self.status = tk.Label(footer, text="STATUS: READY", bg=PANEL, fg=MUTED, font=("Consolas", 9, "bold"))
         self.status.pack(side=tk.LEFT)
-        tk.Label(footer, text="v4.3 Cyber GUI + Wi-Fi", bg=PANEL, fg=MUTED, font=("Consolas", 9)).pack(side=tk.RIGHT)
+        tk.Label(footer, text="v4.4 Cyber GUI + SE Audit", bg=PANEL, fg=MUTED, font=("Consolas", 9)).pack(side=tk.RIGHT)
 
     def _button(self, parent: tk.Frame, text: str, command, column: int) -> None:
         ttk.Button(parent, text=text, style="Cyber.TButton", command=command).grid(row=0, column=column, padx=2, sticky="ew")
@@ -353,6 +396,13 @@ class CyberGUI:
     def start_wifi(self) -> None:
         self._run_async("WIFI SECURITY AUDIT", self.auditor.wifi_security_audit)
 
+    def start_social_engineering(self) -> None:
+        val = self.target_var.get().strip()
+        if not val:
+            messagebox.showwarning("تنبيه", "أدخل رابطاً أو نطاقاً للتحليل.")
+            return
+        self._run_async("SOCIAL ENGINEERING AUDIT", lambda: self.auditor.social_engineering_audit(val))
+
     def start_full(self) -> None:
         target = self._target()
         if target and messagebox.askyesno("تأكيد التدقيق الشامل", "هل تملك إذناً صريحاً لتنفيذ التدقيق الشامل؟"):
@@ -362,6 +412,7 @@ class CyberGUI:
                 self.auditor.vulnerability_scan(target)
                 self.auditor.packet_sniffer(10)
                 self.auditor.wifi_security_audit()
+                self.auditor.social_engineering_audit("https://example.com/login-verify")
                 return self.auditor.defensive_posture()
             self._run_async("FULL AUDIT", full)
 
@@ -372,8 +423,8 @@ class CyberGUI:
 
 def run_cli() -> None:
     print(BANNER)
-    print("OpenNet-Scanner CLI — التدقيق الدفاعي وتدقيق الواي فاي")
-    print("1) Local Recon  2) Port Audit  3) Vuln Scan  4) Defensive Check  5) Packet Sniffer  6) Wi-Fi Audit  7) Export  0) Exit")
+    print("OpenNet-Scanner CLI — التدقيق الدفاعي وتدقيق الهندسة الاجتماعية")
+    print("1) Local Recon  2) Port Audit  3) Vuln Scan  4) Defensive Check  5) Packet Sniffer  6) Wi-Fi Audit  7) Phishing Link Analysis  8) Export  0) Exit")
     auditor = OpenNetAuditor()
     while True:
         choice = input("\nاختر: ").strip()
@@ -394,6 +445,8 @@ def run_cli() -> None:
             elif choice == "6":
                 auditor.wifi_security_audit()
             elif choice == "7":
+                auditor.social_engineering_audit(input("أدخل الرابط أو النطاق المراد فحصه: "))
+            elif choice == "8":
                 auditor.export_report()
             elif choice == "0":
                 return
