@@ -1,42 +1,17 @@
-# OpenNet-Scanner: The Ultimate Network Security & Attack Arsenal Framework 🛡️
+# OpenNet-Scanner: Defensive Network Auditing Framework 🛡️
 
-**OpenNet-Scanner (Arsenal Edition)** هو إطار عمل أمني متقدم ومفتوح المصدر، مخصص لأبحاث أمان الشبكات السلكية واللاسلكية، محاكاة هجمات الاختراق، الفحص الشامل للثغرات، واختبار قوة الحماية في البيئات المختلفة.
+**OpenNet-Scanner** هو إطار عمل مهني ومفتوح المصدر لتدقيق أمان الشبكات، الاستطلاع الآمن، فحص المنافذ والخدمات، وتقييم الوضع الدفاعي للأنظمة والشبكات المصرّح بها.
 
 ---
 
-## وحدات الترسانة الأساسية (Arsenal Modules) 🌟
+## الميزات الرئيسية 🌟
 
-| وحدة التشغيل | الوصف والمهام |
+| الوحدة | الوصف |
 |---|---|
-| **1. وحدة الاستطلاع المتقدمة** | اكتشاف الأجهزة الحية على النطاق المحلي باستخدام `ARP Scan` و `Nmap` السريع. |
-| **2. وحدة الهجمات اللاسلكية** | فحص الشبكات المحيطة، محاكاة التقاط حزم التوثيق (Handshake)، واختبار هجمات قطع الاتصال (Deauth). |
-| **3. وحدة الاعتراض والهجمات في المنتصف (MITM)** | فحص جداول ARP، اختبار توجيه النطاقات (DNS Spoofing)، وفحص قنوات الاتصال غير المشفرة. |
-| **4. وحدة فحص الثغرات والخدمات (CVE)** | تشغيل محرك Nmap Vuln Scripts لفحص الثغرات المعروفة في الخدمات النشطة. |
-| **5. فحص الترسانة الشامل** | تنفيذ دورة فحص واستطلاع كاملة بضغطة زر واحدة. |
-| **6. تصدير التقارير الذكية** | تصدير النتائج بصيغتي **JSON** و **HTML** بتصميم احترافي ومنظم. |
-
----
-
-## المتطلبات ونظام التشغيل 💻
-
-- **النظام المدعوم:** Linux (Kali Linux, Debian, Ubuntu, Termux مع الصلاحيات المناسبة).
-- **الصلاحيات:** يتطلب تشغيل بعض الوحدات المتقدمة صلاحيات الجذر (`sudo`).
-- **Python:** الإصدار 3.x مع الأدوات الأساسية.
-
----
-
-## التثبيت والاستخدام 🛠️
-
-### 1. استنساخ المستودع
-```bash
-git clone https://github.com/Ramy-alsamee/OpenNet-Scanner.git
-cd OpenNet-Scanner
-```
-
-### 2. تشغيل الترسانة
-```bash
-sudo python3 opennet_scanner.py
-```
+| **الاستطلاع المحلي** | اكتشاف الأجهزة النشطة داخل نطاق الشبكة بشكل آمن وغير تدميري. |
+| **فحص المنافذ والخدمات** | رصد المنافذ المفتوحة وتحديد إصدارات الخدمات (Port & Service Audit). |
+| **التقييم الدفاعي** | مراجعة إعدادات الشبكة وخوادم DNS والسياسات الأمنية. |
+| **التصدير الاحترافي** | حفظ التقارير الفنية للمراجعة والتوثيق. |
 
 ---
 
@@ -48,13 +23,13 @@ sudo python3 opennet_scanner.py
 
 ## English Summary
 
-**OpenNet-Scanner (Arsenal Edition)** is a modular network security and attack simulation framework. It integrates advanced reconnaissance, wireless attack simulations, MITM inspection, CVE vulnerability scanning, and automated JSON/HTML report generation into a single interactive tool.
+**OpenNet-Scanner** is a professional defensive network auditing and security assessment framework designed for authorized network reconnaissance, port scanning, service auditing, and defensive posture evaluation.
 
 ### Usage
 ```bash
 git clone https://github.com/Ramy-alsamee/OpenNet-Scanner.git
 cd OpenNet-Scanner
-sudo python3 opennet_scanner.py
+python3 opennet_scanner.py
 ```
 
-*Developed for educational and authorized security research purposes only.*
+*Developed for authorized security assessments and educational purposes only.*
