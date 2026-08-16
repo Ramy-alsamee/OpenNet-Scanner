@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-OpenNet-Scanner: Defensive Network Auditing & Security Assessment Framework
+OpenNet-Scanner: Defensive Network Auditing & Vulnerability Assessment Framework
 Copyright (c) 2026 رامي السامعي (Ramy Al-Samee)
 License: MIT
 Description: A professional, safe, and ethical tool for network reconnaissance, 
@@ -30,8 +30,8 @@ BANNER = f"""
 ██║   ██║██║╚██╗██║██╔══╝  ██║╚██╗██║██╔══╝      ╚════██║██║     ██╔══██║██║╚██╗██║██║╚██╗██║██╔══╝  ██╔══██╗
 ╚██████╔╝██║ ╚████║███████╗██║ ╚████║███████╗    ███████║╚██████╗██║  ██║██║ ╚████║██║ ╚████║███████╗██║  ██║
  ╚═════╝ ╚═╝  ╚═══╝╚══════╝╚═╝  ╚═══╝╚══════╝    ╚══════╝ ╚═════╝╚═╝  ╚═══╝╚═╝  ╚═══╝╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝
-{YELLOW}=== Defensive Network Auditing & Security Assessment Framework ==={RESET}
-{GREEN}Author: رامي السامعي (Ramy Al-Samee) | Version: 3.1 Defensive Edition{RESET}
+{YELLOW}=== Defensive Network Auditing & Vulnerability Assessment Framework ==={RESET}
+{GREEN}Author: رامي السامعي (Ramy Al-Samee) | Version: 3.2 VulnScanner Edition{RESET}
 """
 
 class OpenNetAuditor:
@@ -42,31 +42,35 @@ class OpenNetAuditor:
             "interface": self.interface,
             "reconnaissance": {},
             "port_scan": {},
+            "vulnerability_scan": {},
             "defensive_checks": {}
         }
 
     def menu(self):
         while True:
             print(BANNER)
-            print(f"{BOLD}اختر عملية التدقيق الدفاعي:{RESET}")
-            print(f"{YELLOW}1.{RESET} فحص الاستطلاع المحلي واكتشاف الأجهزة (Local Recon & Host Discovery)")
+            print(f"{BOLD}اختر عملية التدقيق الدفاعي والفحص:{RESET}")
+            print(f"{YELLOW}1.{RESET} فحص الاستطلاع المحلي واكتشاف الأجهزة (Local Recon)")
             print(f"{YELLOW}2.{RESET} فحص المنافذ والخدمات النشطة (Port & Service Audit)")
-            print(f"{YELLOW}3.{RESET} تقييم الوضع الدفاعي للشبكة (Defensive Posture Assessment)")
-            print(f"{YELLOW}4.{RESET} تشغيل التدقيق الشامل (Full Network Security Audit)")
-            print(f"{YELLOW}5.{RESET} تصدير التقرير الفني (JSON / HTML Report)")
+            print(f"{YELLOW}3.{RESET} وحدة فحص الثغرات الشائعة (Vulnerability Scanner - NSE)")
+            print(f"{YELLOW}4.{RESET} تقييم الوضع الدفاعي للشبكة (Defensive Posture Assessment)")
+            print(f"{YELLOW}5.{RESET} تشغيل التدقيق الشامل (Full Network Security Audit)")
+            print(f"{YELLOW}6.{RESET} تصدير التقرير الفني (JSON Report)")
             print(f"{YELLOW}0.{RESET} خروج")
             
-            choice = input(f"\n{GREEN}اختر رقماً (0-5): {RESET}").strip()
+            choice = input(f"\n{GREEN}اختر رقماً (0-6): {RESET}").strip()
             
             if choice == "1":
                 self.local_recon()
             elif choice == "2":
                 self.port_audit()
             elif choice == "3":
-                self.defensive_posture()
+                self.vuln_scan()
             elif choice == "4":
-                self.full_audit()
+                self.defensive_posture()
             elif choice == "5":
+                self.full_audit()
+            elif choice == "6":
                 self.export_report()
             elif choice == "0":
                 print(f"{GREEN}[+] شكرا لاستخدام OpenNet-Scanner. إلى اللقاء!{RESET}")
@@ -96,26 +100,40 @@ class OpenNetAuditor:
         print(res)
         self.results["port_scan"] = {"target": target, "output": res}
 
+    def vuln_scan(self):
+        print(f"\n{CYAN}=== [3] وحدة فحص الثغرات الشائعة (Vulnerability Scanner) ==={RESET}")
+        target = input(f"{GREEN}أدخل عنوان IP الهدف لفحص الثغرات: {RESET}").strip() or "127.0.0.1"
+        print(f"[*] جاري فحص الثغرات الشائعة باستخدام محرك Nmap Vuln Scripts على {target}...")
+        print(f"[*] هذا الفحص يختشف الثغرات المعروفة في الخدمات النشطة والبرمجيات القديمة...")
+        
+        # استخدام سكربتات nmap للثغرات الشائعة
+        cmd = f"nmap --script vuln {target}"
+        res = subprocess.getoutput(cmd)
+        print(res)
+        self.results["vulnerability_scan"] = {"target": target, "output": res}
+        print(f"{GREEN}[+] اكتمل فحص الثغرات بنجاح!{RESET}")
+
     def defensive_posture(self):
-        print(f"\n{CYAN}=== [3] تقييم الوضع الدفاعي للشبكة ==={RESET}")
+        print(f"\n{CYAN}=== [4] تقييم الوضع الدفاعي للشبكة ==={RESET}")
         print("[*] فحص خوادم DNS الحالية وتشفير الاتصالات الافتراضية...")
         resolv = subprocess.getoutput("cat /etc/resolv.conf")
         print(resolv)
         self.results["defensive_checks"] = {"resolv_conf": resolv}
 
     def full_audit(self):
-        print(f"\n{CYAN}=== [4] التدقيق الشامل للشبكة ==={RESET}")
+        print(f"\n{CYAN}=== [5] التدقيق الشامل للشبكة وفحص الثغرات ==={RESET}")
         self.local_recon()
         self.port_audit()
+        self.vuln_scan()
         self.defensive_posture()
-        print(f"{GREEN}[+] اكتمل التدقيق الشامل بنجاح!{RESET}")
+        print(f"{GREEN}[+] اكتمل التدقيق الشامل وفحص الثغرات بنجاح!{RESET}")
 
     def export_report(self):
-        print(f"\n{CYAN}=== [5] تصدير التقارير الفنية ==={RESET}")
+        print(f"\n{CYAN}=== [6] تصدير التقارير الفنية ==={RESET}")
         filename = f"network_audit_{int(time.time())}.json"
         with open(filename, "w", encoding="utf-8") as f:
             json.dump(self.results, f, ensure_ascii=False, indent=4)
-        print(f"{GREEN}[+] تم حفظ التقرير في: {filename}{RESET}")
+        print(f"{GREEN}[+] تم حفظ التقرير الشامل في ملف: {filename}{RESET}")
 
 if __name__ == "__main__":
     auditor = OpenNetAuditor()
