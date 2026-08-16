@@ -16,18 +16,31 @@
 
 ---
 
-## التشغيل 🛠️
+## المتطلبات والتشغيل 🛠️
 
-### 1. تشغيل الوضع التفاعلي (CLI Mode)
+يتطلب وضع الواجهة الرسومية Python وTkinter وبيئة سطح مكتب تحتوي على شاشة عرض. في Debian/Ubuntu/Kali يمكنك تثبيت Tkinter بالأمر التالي:
+
 ```bash
-python3 opennet_scanner.py
+sudo apt update && sudo apt install -y python3-tk nmap
 ```
 
+### 1. تشغيل الوضع التفاعلي (CLI Mode)
+
+```bash
+python3 opennet_scanner.py --cli
+```
+
+يُستخدم هذا الوضع في Termux أو الخوادم أو أي بيئة لا تحتوي على شاشة رسومية.
+
 ### 2. تشغيل الواجهة الرسومية (Cyber GUI Mode)
+
 ```bash
 python3 opennet_scanner.py --gui
 ```
-*(أو اختر الخيار 5 من القائمة الطرفية).*
+
+أو شغّل `python3 opennet_scanner.py` داخل جلسة سطح مكتب؛ وفي البيئة الرسومية ستفتح الواجهة تلقائياً. من الواجهة يمكنك إدخال هدف مصرح به وتشغيل **Local Recon** و**Port Audit** و**Vuln Scan** و**Defensive Check** ثم تصدير تقرير JSON.
+
+*(لا يعمل وضع GUI عبر جلسة SSH أو Termux النصية وحدها من دون خادم عرض مثل X11/VNC.)*
 
 ---
 

@@ -21,10 +21,19 @@ import subprocess
 import sys
 import threading
 import time
-import tkinter as tk
 from datetime import datetime
-from tkinter import messagebox, scrolledtext, ttk
 from typing import Callable, Optional
+
+try:
+    import tkinter as tk
+    from tkinter import messagebox, scrolledtext, ttk
+    GUI_AVAILABLE = True
+except ImportError:
+    tk = None
+    messagebox = None
+    scrolledtext = None
+    ttk = None
+    GUI_AVAILABLE = False
 
 
 CYAN = "#38bdf8"
@@ -320,8 +329,15 @@ def run_cli() -> None:
 
 
 def main() -> None:
-    if "--cli" in sys.argv or os.environ.get("DISPLAY") is None and "--gui" not in sys.argv:
+    wants_gui = "--gui" in sys.argv
+    if "--cli" in sys.argv or (not wants_gui and os.environ.get("DISPLAY") is None):
         run_cli()
+        return
+    if not GUI_AVAILABLE:
+        print("[!] Tkinter غير متوفر. ثبّت حزمة python3-tk ثم أعد المحاولة.")
+        return
+    if not os.environ.get("DISPLAY") and sys.platform != "win32":
+        print("[!] لا توجد شاشة عرض رسومية. شغّل الأداة داخل جلسة سطح مكتب أو استخدم --cli.")
         return
     root = tk.Tk()
     CyberGUI(root)
